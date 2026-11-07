@@ -1,0 +1,11 @@
+# Cache Python
+__pycache__/
+*.pyc
+
+# Virtual environment
+venv/
+.venv/
+
+# Pengaturan editor
+.vscode/
+.idea/
