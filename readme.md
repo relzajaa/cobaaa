@@ -7,6 +7,7 @@
 ![Python](https://img.shields.io/badge/Python-3.8%2B-3776AB?logo=python&logoColor=white)
 ![OOP](https://img.shields.io/badge/Paradigma-OOP-green)
 ![Penyimpanan](https://img.shields.io/badge/Penyimpanan-CSV-informational)
+![Pengujian](https://img.shields.io/badge/Pengujian-40%20tes%20otomatis-brightgreen)
 ![Kelompok](https://img.shields.io/badge/Kelompok-3-orange)
 
 </div>
@@ -17,15 +18,17 @@
 2. [Anggota Kelompok](#-anggota-kelompok)
 3. [Deskripsi Sistem](#-deskripsi-sistem)
 4. [Struktur Program](#-struktur-program)
-5. [Cara Menjalankan](#-cara-menjalankan)
-6. [Pembagian Kontribusi](#-pembagian-kontribusi)
+5. [Keandalan Data dan Algoritma](#-keandalan-data-dan-algoritma)
+6. [Cara Menjalankan](#-cara-menjalankan)
+7. [Pengujian](#-pengujian)
+8. [Pembagian Kontribusi](#-pembagian-kontribusi)
 
 
 ## 📌 Nama Aplikasi
 
 **Sistem Peminjaman Peralatan Laboratorium**
 
-Aplikasi ini dibuat dengan Python dan dijalankan lewat terminal. Data disimpan di file **CSV** (folder `Data_Sistem/`) dan **tersimpan otomatis** setiap selesai satu aksi, tanpa database.
+Aplikasi ini dibuat dengan Python dan dijalankan lewat terminal. Data disimpan di file **CSV** (folder `Data_Sistem/`) dan **tersimpan otomatis** setiap selesai satu aksi yang mengubah data, tanpa database.
 
 
 ## 👥 Anggota Kelompok
@@ -87,11 +90,11 @@ stateDiagram-v2
 
 ### ✅ Pemeriksaan Input
 
-- NIM dan kode alat tidak boleh sama dengan yang sudah ada.
-- No. HP hanya angka, panjang 10–13 digit.
-- Tanggal kembali berformat `DD-MM-YYYY` dan tidak boleh sebelum tanggal pinjam.
+- NIM dan kode alat tidak boleh sama dengan yang sudah ada. Huruf besar/kecil tidak dibedakan (`k3525024` sama dengan `K3525024`), dan spasi di pinggir atau spasi ganda dirapikan otomatis.
+- No. HP hanya angka biasa (0–9), panjang 10–13 digit.
+- Tanggal kembali berformat `DD-MM-YYYY`, tidak boleh sebelum tanggal pinjam, dan tidak boleh melewati hari ini.
 - Jika ada kesalahan, muncul pesan `[!]` berwarna merah dan program tidak berhenti.
-- Jika file CSV tidak bisa dibaca, program berhenti dengan pesan error agar data yang ada tidak tertimpa data kosong.
+- Tekan **Ctrl+C** saat sedang mengisi data untuk **membatalkan aksi itu saja**. Tekan sekali lagi di menu utama untuk keluar.
 
 ### 🖥️ Tampilan Program
 
@@ -131,6 +134,8 @@ Ini tampilan menu utama saat program dijalankan (garis dan kotak berwarna kuning
       Pilih menu (1-15): 
 </pre>
 
+Tabel menyesuaikan lebar terminal (kolom terlebar dipersempit otomatis) dan pesan yang panjang dipecah menjadi beberapa baris. Warna otomatis dimatikan jika keluaran dialihkan ke file atau jika variabel lingkungan `NO_COLOR` diisi.
+
 
 ## 🗂️ Struktur Program
 
@@ -146,8 +151,11 @@ Project2_FIX/
 │   ├── kategori.csv
 │   ├── transaksi.csv
 │   └── detail.csv
+├── tests/
+│   └── test_sistem.py         # 40 tes otomatis
 └── Sistem_Peminjaman_Lab/
     ├── __init__.py
+    ├── penyimpanan.py         # fungsi baca/tulis CSV bersama (penulisan aman)
     ├── mahasiswa.py           # Mahasiswa, penyimpanan CSV, MahasiswaManager
     ├── alat.py                # Enum, Alat, penyimpanan CSV, AlatManager
     ├── transaksi.py           # Enum, Transaksi, penyimpanan CSV, TransaksiManager
@@ -171,16 +179,17 @@ flowchart TD
     M3 --> D3["Transaksi"]
     D3 --> D4["DetailPeminjaman"]
     D4 --> D2
-    M1 -.-> CSV[("File CSV")]
-    M2 -.-> CSV
-    M3 -.-> CSV
+    M1 -.-> P["penyimpanan.py"]
+    M2 -.-> P
+    M3 -.-> P
+    P -.-> CSV[("File CSV")]
 ```
 
 | Lapisan | Class / File | Tugas |
 |---------|--------------|-------|
-| **UI** | `MenuApp`, `tampilan.py` | Menampilkan menu dan tabel, membaca input, menangkap pesan error |
-| **Manager** | `MahasiswaManager`, `AlatManager`, `TransaksiManager` | Menyimpan data di `dict` dan memeriksa aturan |
-| **Penyimpanan** | `PenyimpananMahasiswa`, `PenyimpananAlat`, `PenyimpananTransaksi` | Membaca dan menulis file CSV |
+| **UI** | `MenuApp`, `tampilan.py` | Menampilkan menu dan tabel, membaca input, menangkap pesan error. Tidak berisi aturan data |
+| **Manager** | `MahasiswaManager`, `AlatManager`, `TransaksiManager` | Menyimpan data di `dict` dan memeriksa semua aturan |
+| **Penyimpanan** | `PenyimpananMahasiswa`, `PenyimpananAlat`, `PenyimpananTransaksi`, `penyimpanan.py` | Mengubah objek menjadi baris CSV dan sebaliknya; `penyimpanan.py` menulis file dengan aman |
 | **Domain** | `Mahasiswa`, `Alat`, `Transaksi`, `DetailPeminjaman`, Enum | Objek data dan pilihan tetap |
 
 ### 🧩 Class dan Enum (11 class + 3 enum)
@@ -202,22 +211,53 @@ flowchart TD
 | Enum | `KondisiAlat` | `alat.py` | `BAIK`, `RUSAK_RINGAN`, `RUSAK_BERAT` |
 | Enum | `StatusAlat` | `alat.py` | `TERSEDIA`, `DIPINJAM`, `PEMELIHARAAN` |
 
+Selain itu ada `Menu` (`namedtuple` di `menu_app.py`) sebagai pembungkus satu butir menu: nama, fungsi, apakah perlu jeda, dan apakah mengubah data.
+
 ### 🗃️ Struktur Data yang Dipakai
 
 | Struktur | Dipakai untuk |
 |----------|---------------|
-| `dict` | Tempat menyimpan data tiap manager dan daftar menu |
+| `dict` | Tempat menyimpan data tiap manager, daftar menu, dan indeks transaksi per mahasiswa |
 | `list` | Daftar alat dalam transaksi dan hasil pencarian |
 | `set` | Kategori alat dan ID transaksi aktif mahasiswa (tidak boleh ganda) |
-| `tuple` | Pasangan `(nama, jumlah)` pada statistik |
+| `tuple` | Pasangan `(nama, jumlah)` pada statistik dan `namedtuple` `Menu` |
 | File `csv` | Penyimpanan data supaya tidak hilang saat program ditutup |
+
+
+## 🛡️ Keandalan Data dan Algoritma
+
+### 💾 Penyimpanan yang Aman
+
+| Masalah yang dicegah | Cara kerjanya |
+|----------------------|---------------|
+| File CSV rusak setengah tertulis saat program mati atau error | Data ditulis ke file `.tmp` dulu, baru menggantikan file asli dalam satu langkah (`os.replace`). File asli tidak pernah berisi data setengah jadi |
+| Data di layar berbeda dari data di file | Jika aksi gagal (error, file dikunci Excel, atau Ctrl+C), data di memori dipulihkan dari file |
+| File ditulis tanpa perlu | Menu yang hanya menampilkan data tidak menulis file sama sekali. Penyimpanan hanya terjadi setelah aksi yang mengubah data |
+| Nama berhuruf non-ASCII rusak di Windows | File dibaca dan ditulis dengan UTF-8; file hasil simpan dari Excel (dengan BOM) tetap terbaca |
+
+### 🔍 Pemeriksaan Isi File CSV saat Program Dibuka
+
+Jika file CSV diedit manual dan isinya bertentangan, program berhenti dengan pesan yang jelas dan **tidak menimpa** file tersebut. Yang diperiksa: NIM, kode alat, atau ID transaksi ganda; ID transaksi yang bentuknya salah; detail yang merujuk transaksi yang tidak ada; dan satu alat yang tercatat dipinjam di dua transaksi aktif sekaligus. Status **Dipinjam** pada `alat.csv` tidak dipercaya begitu saja, melainkan dihitung ulang dari `detail.csv`, sehingga alat tidak bisa "tersangkut" berstatus dipinjam tanpa transaksi.
+
+### ⚙️ Pilihan Algoritma
+
+| Proses | Cara | Kompleksitas |
+|--------|------|:------------:|
+| Cari mahasiswa / alat berdasarkan NIM / kode | `dict` dengan NIM / kode sebagai kunci | O(1) |
+| Cari transaksi milik satu mahasiswa | Indeks `dict` `{nim: [transaksi]}`, tidak menelusuri semua transaksi | O(jumlah transaksi mahasiswa itu) |
+| Buang kode alat ganda dalam satu transaksi | `dict.fromkeys` (menjaga urutan) | O(k) |
+| Tambah banyak unit alat | Semua unit diperiksa dulu, baru disimpan: kalau satu bermasalah, tidak ada yang masuk | O(n + jumlah unit) |
+| Peringkat statistik | Diurutkan menurut jumlah, lalu abjad, sehingga hasil selalu sama untuk data yang sama | O(m log m) |
+| Lebar kolom tabel | Kolom terlebar dipersempit satu per satu sampai muat di layar | O(kolom x kelebihan) |
+
+Status `statusAktif` pada mahasiswa dihitung dari daftar transaksi aktifnya (`@property`), bukan disimpan terpisah, jadi tidak mungkin tidak sinkron.
 
 
 ## 🚀 Cara Menjalankan
 
 ### 🔧 Yang Dibutuhkan
 
-- **Python 3.8 atau lebih baru** (sudah dicoba di Python 3.13)
+- **Python 3.8 atau lebih baru** (sudah diuji di Python 3.12)
 - Terminal yang bisa menampilkan warna dan karakter Unicode (Windows Terminal, PowerShell, macOS Terminal, atau terminal Linux)
 - Tidak perlu `pip install` apa pun
 - Atau buka `main.py` di editor (misalnya VS Code), lalu klik tombol play di pojok kanan atas untuk Run
@@ -246,17 +286,30 @@ File CSV awal hanya berisi judul kolom, jadi **isi data dulu**:
 
 > 💾 Data tersimpan otomatis ke folder `Data_Sistem/`, jadi tetap ada saat program dibuka lagi.
 >
-> ⚠️ Jangan membuka file CSV di Excel saat program berjalan, karena penyimpanan bisa gagal.
+> ⚠️ Jangan membuka file CSV di Excel saat program berjalan. Jika penyimpanan gagal, program menampilkan pesan, membatalkan perubahan itu, dan tetap berjalan; tutup Excel lalu ulangi aksinya.
+
+
+## 🧪 Pengujian
+
+Ada **40 tes otomatis** di `tests/test_sistem.py` yang memeriksa aturan tiap manager, simpan dan muat ulang data, file CSV yang rusak, tampilan tabel, dan alur menu dari awal sampai akhir (input pengguna disimulasikan). Tes memakai folder sementara, jadi isi `Data_Sistem/` tidak tersentuh.
+
+```bash
+# dari folder Project2_FIX
+python -m unittest -v          # Windows
+python3 -m unittest -v         # macOS / Linux
+```
+
+Hasil yang diharapkan: `Ran 40 tests ... OK`. Jalankan ulang setiap kali ada anggota yang mengubah kodenya.
 
 
 ## 🤝 Pembagian Kontribusi
 
 | Anggota | File yang Dikerjakan | Isi Tugas |
 |---------|----------------------|-----------|
-| **Farrel Muflif Muzzaki** | `menu_app.py`, `main.py` | Menu utama dan submenu, alur input pengguna, menu tantangan, serta pintu masuk program |
-| **Gisma Dian Utami** | `mahasiswa.py`, `alat.py`, `transaksi.py` | Enum dan class data: `Mahasiswa`, `Alat`, `DetailPeminjaman`, `Transaksi` |
-| **Nourin Akbar Pratama** | `tampilan.py`, `README.md` | Tampilan terminal, penjelasan repository |
-| **Azzahra Hendar Asafira** | `mahasiswa.py`, `alat.py`, `transaksi.py` | `MahasiswaManager`, `AlatManager`, `TransaksiManager`, penyimpanan CSV, serta pemeriksaan aturan |
+| **Farrel Muflif Muzzaki** | `mahasiswa.py`, `menu_app.py`, `main.py` | `Mahasiswa`, `PenyimpananMahasiswa`, `MahasiswaManager` dan aturan data mahasiswa; menu utama dan submenu, alur input pengguna, menu tantangan; pintu masuk program |
+| **Gisma Dian Utami** | `alat.py`, `README.md` | Enum `KondisiAlat` dan `StatusAlat`, `Alat`, `PenyimpananAlat`, `AlatManager` (kategori, pencarian, pemeliharaan); README bagian nama aplikasi, deskripsi sistem, fitur, dan aturan |
+| **Azzahra Hendar Asafira** | `transaksi.py`, `penyimpanan.py`, `tests/test_sistem.py` | Enum `StatusTransaksi`, `Transaksi`, `DetailPeminjaman`, `PenyimpananTransaksi`, `TransaksiManager` (aturan peminjaman, pengembalian, riwayat, statistik); fungsi penyimpanan CSV yang aman; pengujian otomatis |
+| **Nourin Akbar Pratama** | `tampilan.py`, `README.md` | Tampilan terminal (warna, kotak, tabel, pesan); README bagian struktur program, keandalan data, cara menjalankan, dan pengujian |
 
 <div align="center">
 
