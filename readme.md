@@ -4,6 +4,12 @@
 
 **Aplikasi terminal berbasis Python OOP untuk mencatat peminjaman alat laboratorium oleh mahasiswa.**
 
+![Bahasa](https://img.shields.io/badge/Bahasa-Python-3776AB?logo=python&logoColor=white)
+![Paradigma](https://img.shields.io/badge/Paradigma-OOP-2ea44f)
+![Penyimpanan](https://img.shields.io/badge/Penyimpanan-CSV-0969da)
+![Antarmuka](https://img.shields.io/badge/Antarmuka-Terminal-E3B341)
+![Kelompok](https://img.shields.io/badge/Kelompok-3-orange)
+
 </div>
 
 ## Daftar Isi
@@ -21,6 +27,9 @@
 **Sistem Peminjaman Peralatan Laboratorium**
 
 Aplikasi ini dibuat dengan Python dan dijalankan lewat terminal. Data disimpan di file **CSV** (folder `Data_Sistem/`) dan **tersimpan otomatis** setiap selesai satu aksi, tanpa database.
+
+> [!NOTE]
+> Aplikasi ini hanya memakai pustaka standar Python, jadi tidak ada yang perlu diinstal.
 
 
 ## Anggota Kelompok
@@ -48,7 +57,7 @@ Sistem ini membantu petugas lab mencatat **siapa** meminjam **alat apa**, **kapa
 | 3 | Buat Transaksi Peminjaman | Satu transaksi boleh berisi beberapa alat, lama pinjam 1-7 hari |
 | 4 | Tampilkan Transaksi | Semua transaksi, bisa dilanjutkan melihat detail lewat ID, ada tanda **TERLAMBAT** |
 | 5 | Proses Pengembalian Alat | Alat dikembalikan satu per satu, lengkap dengan kondisi dan tanggal |
-| 6 | Cari Transaksi Berdasarkan Mahasiswa | Cari memakai NIM |
+| 6 | Cari Transaksi Berdasarkan Mahasiswa | Cari memakai NIM, bisa dilanjutkan melihat detail lewat ID |
 | 7 | Tampilkan Alat yang Tersedia | Daftar alat + jumlah stok |
 | 8 | Tampilkan Alat yang Sedang Dipinjam | Daftar alat yang belum kembali |
 | 9 | Tampilkan Alat yang Rusak | Daftar alat yang kondisinya tidak baik |
@@ -59,6 +68,14 @@ Sistem ini membantu petugas lab mencatat **siapa** meminjam **alat apa**, **kapa
 | 14 | Lihat Alat dalam Pemeliharaan | Daftar alat yang sedang dipelihara |
 | 15 | Selesaikan Pemeliharaan Alat | Alat selesai dipelihara lalu kembali tersedia dalam kondisi baik |
 
+
+### Status dan Kondisi
+
+| Jenis | Nilai |
+|-------|-------|
+| Status alat | ![Tersedia](https://img.shields.io/badge/Tersedia-2ea44f) ![Dipinjam](https://img.shields.io/badge/Dipinjam-d29922) ![Pemeliharaan](https://img.shields.io/badge/Pemeliharaan-cf222e) |
+| Kondisi alat | ![Baik](https://img.shields.io/badge/Baik-2ea44f) ![Rusak ringan](https://img.shields.io/badge/Rusak_ringan-bf8700) ![Rusak berat](https://img.shields.io/badge/Rusak_berat-cf222e) |
+| Status transaksi | ![Dipinjam](https://img.shields.io/badge/Dipinjam-d29922) ![Sebagian dikembalikan](https://img.shields.io/badge/Sebagian_dikembalikan-0969da) ![Selesai](https://img.shields.io/badge/Selesai-2ea44f) |
 
 ### Aturan Peminjaman
 
@@ -72,6 +89,7 @@ Sistem ini membantu petugas lab mencatat **siapa** meminjam **alat apa**, **kapa
 ### Pemeriksaan Input
 
 - NIM dan kode alat tidak boleh sama dengan yang sudah ada.
+- Kode alat otomatis diubah ke huruf besar, dan kategori diawali huruf kapital.
 - Nama mahasiswa wajib diisi.
 - No. HP hanya angka, panjang 10-13 digit.
 - Jumlah unit alat yang ditambah sekaligus 1-100.
@@ -123,8 +141,9 @@ Ini tampilan menu utama saat program dijalankan (garis dan kotak berwarna kuning
 ### Susunan Folder
 
 ```text
-Project2_FIX/
+Project2_Kelompok3_PraktikumPemrogramanDasar/
 ├── main.py                    # pintu masuk program
+├── .gitignore                 # daftar file yang tidak ikut dilacak Git
 ├── README.md
 ├── Data_Sistem/               # file data (CSV)
 │   ├── mahasiswa.csv
@@ -157,19 +176,31 @@ flowchart TD
     M3 --> D3["Transaksi"]
     D3 --> D4["DetailPeminjaman"]
     D4 --> D2
+    D3 --> D1
     M1 --> P1["PenyimpananMahasiswa"]
     M2 --> P2["PenyimpananAlat"]
     M3 --> P3["PenyimpananTransaksi"]
     P1 --> C1[("mahasiswa.csv")]
     P2 --> C2[("alat.csv, kategori.csv")]
     P3 --> C3[("transaksi.csv, detail.csv")]
+
+    classDef ui fill:#fff3bf,stroke:#e0a800,color:#000
+    classDef mgr fill:#d0ebff,stroke:#1c7ed6,color:#000
+    classDef dom fill:#d3f9d8,stroke:#2f9e44,color:#000
+    classDef sim fill:#ffe8cc,stroke:#e8590c,color:#000
+    classDef file fill:#e9ecef,stroke:#495057,color:#000
+    class A,B,T ui
+    class M1,M2,M3 mgr
+    class D1,D2,D3,D4 dom
+    class P1,P2,P3 sim
+    class C1,C2,C3 file
 ```
 
 | Lapisan | File | Tugas |
 |---------|------|-------|
-| **UI** | `menu_app.py`, `tampilan.py` | Menampilkan menu dan tabel, membaca input, menangkap pesan error |
-| **Manager dan Domain** | `mahasiswa.py`, `alat.py`, `transaksi.py` | Objek data (mahasiswa, alat, transaksi), pilihan tetap (Enum), penyimpanan di `dict`, dan pemeriksaan aturan |
-| **Penyimpanan** | `Data_Sistem/*.csv` | Menyimpan data ke file CSV dan membacanya kembali saat program dijalankan |
+| ![UI](https://img.shields.io/badge/UI-E3B341) | `menu_app.py`, `tampilan.py` | Menampilkan menu dan tabel, membaca input, menangkap pesan error |
+| ![Manager](https://img.shields.io/badge/Manager-1c7ed6) ![Domain](https://img.shields.io/badge/Domain-2f9e44) | `mahasiswa.py`, `alat.py`, `transaksi.py` | Objek data (mahasiswa, alat, transaksi), pilihan tetap (Enum), penyimpanan di `dict`, dan pemeriksaan aturan |
+| ![Penyimpanan](https://img.shields.io/badge/Penyimpanan-e8590c) | class `Penyimpanan*` dan `Data_Sistem/*.csv` | Menyimpan data ke file CSV dan membacanya kembali saat program dijalankan |
 
 ### Class dan Enum (11 class + 3 enum)
 
@@ -194,10 +225,10 @@ flowchart TD
 
 | Struktur | Dipakai untuk |
 |----------|---------------|
-| `dict` | Tempat menyimpan data tiap manager dan daftar menu |
-| `list` | Daftar alat dalam transaksi dan hasil pencarian |
+| `dict` | Tempat menyimpan data tiap manager (kunci NIM, kode alat, ID transaksi), daftar menu, dan hasil statistik |
+| `list` | Daftar alat dalam transaksi, hasil pencarian dan filter, serta baris tabel |
 | `set` | Kategori alat dan ID transaksi aktif mahasiswa (tidak boleh ganda) |
-| `tuple` | Pasangan `(nama, jumlah)` pada statistik |
+| `tuple` | Pasangan `(nama, jumlah)` pada statistik dan isi daftar menu `(nama, fungsi, jeda)` |
 
 ### File Data (CSV)
 
@@ -222,7 +253,7 @@ flowchart TD
 
 ```bash
 # 1. Masuk ke folder proyek
-cd Project2_FIX
+cd Project2_Kelompok3_PraktikumPemrogramanDasar
 
 # 2. Jalankan program
 python main.py          # Windows
@@ -238,10 +269,14 @@ Folder `Data_Sistem/` awalnya hanya berisi judul kolom (tanpa data contoh), jadi
 1. **Menu 1** -> tambah mahasiswa (NIM, nama, No. HP).
 2. **Menu 2** -> tambah alat. Contoh: kode `MKS`, jumlah `3` -> otomatis jadi `MKS-01`, `MKS-02`, `MKS-03`.
 3. **Menu 3** -> buat peminjaman (NIM, kode alat dipisah koma, lama pinjam).
-4. **Menu 5** -> kembalikan alat (pilih transaksi, kode alat, kondisi, tanggal).
+4. **Menu 5** -> kembalikan alat (NIM, pilih transaksi, kode alat, kondisi, tanggal).
 5. **Menu 4, 10, 13** -> lihat transaksi, riwayat, dan statistik.
 
-> Catatan: data tersimpan di file CSV pada folder `Data_Sistem/`, jadi **tidak hilang saat program ditutup**. Tutup file CSV jika sedang dibuka di aplikasi lain (misalnya Excel) agar data bisa disimpan, dan jangan mengubah isinya secara manual dengan format yang salah karena program akan berhenti dengan pesan error saat membaca file.
+> [!TIP]
+> Data tersimpan di file CSV pada folder `Data_Sistem/`, jadi **tidak hilang saat program ditutup**.
+
+> [!WARNING]
+> Tutup file CSV jika sedang dibuka di aplikasi lain (misalnya Excel) agar data bisa disimpan. Jangan mengubah isi file CSV secara manual dengan format yang salah, karena program akan berhenti dengan pesan error saat membaca file.
 
 
 ## Pembagian Kontribusi
@@ -256,5 +291,7 @@ Folder `Data_Sistem/` awalnya hanya berisi judul kolom (tanpa data contoh), jadi
 <div align="center">
 
 **Created by Kelompok 3**
+
+![Kelompok](https://img.shields.io/badge/Kelompok-3-orange)
 
 </div>
